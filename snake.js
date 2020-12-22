@@ -9,31 +9,31 @@ var largeur = 20;
 var hauteur = 20;
 
 // Coordonnées x et y positionnées au milieu de la surface du Canvas divisé par deux ( Math.trunc ) qui prend que la partie entière des divisions
-var x = Math.trunc(canvas.width/2);
-var y = Math.trunc(canvas.height/2);
+var x = Math.trunc(Math.random()*canvas.width/largeur)*largeur;
+var y = Math.trunc(Math.random()*canvas.height/hauteur)*hauteur;
 
 //Les deux variables qui vont s'occuper du déplacement
 var deplacementX = 0;
 var deplacementY = 0;
 
 var trace=[];
-var tailleTrace=50;
-var sautTrace=10;
-var tailleMaxTrace=1000;
+var tailleTrace=5;
+var sautTrace=1;
+var tailleMaxTrace=100;
 var hist = 0;
 var compteBoucle = 0;
 var sautBoucle = 10;
 
 // Toutes les 10 ms exécute game ()
-var intervalID = setInterval(game,10);
+var intervalID = setInterval(game,100);
 
     // Ecoute de l'évenement keydown pour éxécuter la fonction "Keyboard"
     document.addEventListener("keydown",keyboard);
 
 function game(){
     //Incrémentation
-    x+=deplacementX;
-    y+=deplacementY;
+    x+=deplacementX*largeur;
+    y+=deplacementY*hauteur;
 
     //On augmente tailleTrace toutes les secondes ( soit 100 boucles )
     if ((tailleTrace <= tailleMaxTrace) && ((deplacementX != 0) || (deplacementY!=0))) {
@@ -56,7 +56,7 @@ function game(){
     ctx.fillStyle="#f1c40f";
     // Dessin du réctangle avec la fonction fillRect qui a besoin des coordonées x et y définit dans nos variables
     for(var i=0;i<trace.length;i++) {
-        ctx.fillRect(trace[i].x,trace[i].y, largeur, hauteur);
+        ctx.fillRect(trace[i].x,trace[i].y, largeur-3, hauteur-3);
     }
 
 }
