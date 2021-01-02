@@ -5,38 +5,52 @@ var canvas = document.getElementById('zone');
 var ctx = canvas.getContext('2d');  
 
 // Largeur et hauteur du réctangle
-var largeur = 20;
-var hauteur = 20;
+var largeur=hauteur = 20; // Hauteur = largeur, une ligne suffit pour les 2 variables vu qu'elles sont égales
 
 // Coordonnées x et y positionnées au milieu de la surface du Canvas divisé par deux ( Math.trunc ) qui prend que la partie entière des divisions
-var x = Math.trunc(Math.random()*canvas.width/largeur)*largeur;
-var y = Math.trunc(Math.random()*canvas.height/hauteur)*hauteur;
+var x = Math.trunc(Math.random()*canvas.width/largeur)*largeur; //Positionement aléatoire sur l'axe Y 
+var y = Math.trunc(Math.random()*canvas.height/hauteur)*hauteur; // Positionement aléatoire sur l'axe X
 
 //Les deux variables qui vont s'occuper du déplacement
-var deplacementX = 0;
-var deplacementY = 0;
+var deplacementX = deplacementY = 0; // Même valeur, même ligne.
 
-var trace=[];
-var tailleTrace=5;
-var sautTrace=1;
-var tailleMaxTrace=100;
-var hist = 0;
-var compteBoucle = 0;
+
+var trace = [];
+var tailleTrace = tailleInitTrace = 5;
+var sautTrace = 1;
+var tailleMaxTrace = 100;
+var hist, compteBoucle = 0;
 var sautBoucle = 10;
+
+
+var PommeX = Math.trunc(Math.random()*canvas.width/largeur)*largeur; //Position de la pomme en X
+var PommeY = Math.trunc(Math.random()*canvas.height/hauteur)*hauteur; //Position de la pomme en Y 
+var PommeRadius = 10; //Rayon de la pomme ( moitié de la largeur du serpent )
+var score = 0;
+var randomColor = 0;
+var vie = 5;
+var intervalID;
+var timeout = 0;
+
+
+window.onload=function() {
 
 // Toutes les 10 ms exécute game ()
 var intervalID = setInterval(game,100);
 
     // Ecoute de l'évenement keydown pour éxécuter la fonction "Keyboard"
     document.addEventListener("keydown",keyboard);
+}
 
 function game(){
+
     //Incrémentation
     x+=deplacementX*largeur;
     y+=deplacementY*hauteur;
 
+
     //On augmente tailleTrace toutes les secondes ( soit 100 boucles )
-    if ((tailleTrace <= tailleMaxTrace) && ((deplacementX != 0) || (deplacementY!=0))) {
+    if((tailleTrace <= tailleMaxTrace) && ((deplacementX != 0) || (deplacementY!=0))) {
         if((compteBoucle++)%100 == 1){
             sautBoucle--;
             if(sautBoucle<0){
@@ -46,19 +60,88 @@ function game(){
     }
     //Insérer la valeur de x et y dans notre tableau
     trace.push({x:x,y:y});
+
     //Tant que le tableau dépase la taille maximum alors on enlève un élement
     while(trace.length>tailleTrace){
         trace.shift()    
     }
     // Effacer la zone du canvas via la fonction (clearRect)
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     // Donner du style au réctangle grâce à la fonction fillStyle
     ctx.fillStyle="#f1c40f";
+
     // Dessin du réctangle avec la fonction fillRect qui a besoin des coordonées x et y définit dans nos variables
     for(var i=0;i<trace.length;i++) {
-        ctx.fillRect(trace[i].x,trace[i].y, largeur-3, hauteur-3);
+        ctx.fillRect(trace[i].x,trace[i].y, largeur -3, hauteur -3); //Modif affichage de la queue du serpent
     }
 
+    if(x==PommeX && y==PommeY){ // Si les coordonées de la Pomme sont celles du serpent alors il y'a colision 
+        score+= 10 + 2 * ((tailleTrace - tailleInitTrace)/sautTrace);
+
+        if(tailleTrace>tailleInitTrace){
+            tailleTrace-=sautTrace;
+        }
+
+    sautBoucle = 10; // On réinitisalise le compte à rebours pour relancer l'expension
+
+    // On choisit une autre position pour la pomme 
+    PommeX = Math.trunc(Math.random()*canvas.width/largeur)*largeur;
+    PommeY = Math.trunc(Math.random()*canvas.height/hauteur)*hauteur;
+    } 
+
+    ctx.beginPath(); //Commencer un nouveau chemin pour séparer la pomme du serpent, si il faut rajouter un autre élément par la suite il va falloir en utiliser une autre par exemple
+    ctx.arc(PommeX+PommeRadius, PommeY+PommeRadius, PommeRadius, 0, Math.PI * 2); //Méthode (arc) qui utilise le rayon de PommeRadius
+    ctx.fillStyle="#e74c3c"; //Lui donner une couleur
+    ctx.fill(); //Remplissage avec la couleur d'en haut
+
+    //Pas de ctx.closePath() ça nous sert à rien dans notre cas
+
+    //Affichage du score 
+    ctx.font = '20px Arial';
+    ctx.fillStyle = '#fff';
+    ctx.fillText('Score: ' + score, 5, 20);
+
+    //Affichage des vies
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#fff';
+    ctx.fillText ('Vies restante: ' + vie, canvas.width - 130, 20);
+
+    if(x<0 || x>canvas.width || y<0 || y > canvas.height){
+        //Perte de vie 
+        timeout = 0;
+        //On réinitialise la trace en effacant les valeurs sauvergardées
+        while(trace.length>1){
+            //Alors on enlève un élément
+            trace.shift();
+        }
+
+        //On définit à nouveau une position du serpent
+        x = Math.trunc(Math.random()*canvas.width/largeur)*largeur;
+        y = Math.trunc(Math.random()*canvas.height/hauteur)*hauteur;
+
+        //On redonne la taille initiale de la trace
+        tailleTrace=tailleInitTrace;
+
+        //On définit à nouveau une position pour la pomme
+        PommeX = Math.trunc(Math.random()*canvas.width/largeur)*largeur;
+        PommeY = Math.trunc(Math.random()*canvas.height/hauteur)*hauteur;
+
+        //On décrémente le nombre de vie
+        vie--;
+
+        if(vie == 0){
+            //Afficher la fin de la partie
+            ctx.font = '40px Arial';
+            ctx.fillStyle = '#fff';
+            ctx.fillText('GAME OVER SON OF A BITCH', canvas.width / 2 - 130, canvas.height / 2);
+            document.getElementById('game-over').play();
+            clearTimeout(intervalID);
+            } else {
+            document.getElementById('life').play();
+        }
+
+    }
 }
 
 function keyboard(evt){
@@ -106,6 +189,8 @@ function keyboard(evt){
         break;
 
         // Des touches seront rajoutées par la suite ! ( Mettre en pause, ouvrir l'aide...)
+
+
 
     }
 
