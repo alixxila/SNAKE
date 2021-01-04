@@ -33,6 +33,7 @@ var intervalID;
 var timeout = 0;
 
 
+
 window.onload=function() {
 
 // Toutes les 10 ms exécute game ()
@@ -63,12 +64,12 @@ function game(){
 
     //Tant que le tableau dépase la taille maximum alors on enlève un élement
     while(trace.length>tailleTrace){
-        trace.shift()    
+    trace.shift()    
     }
     // Effacer la zone du canvas via la fonction (clearRect)
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Donner du style au réctangle grâce à la fonction fillStyle
+    // Donner une couleur au réctangle grâce à la fonction fillStyle
     ctx.fillStyle="#f1c40f";
 
     // Dessin du réctangle avec la fonction fillRect qui a besoin des coordonées x et y définit dans nos variables
@@ -78,7 +79,7 @@ function game(){
 
     if(x==PommeX && y==PommeY){ // Si les coordonées de la Pomme sont celles du serpent alors il y'a colision 
         score+= 10 + 2 * ((tailleTrace - tailleInitTrace)/sautTrace);
-
+        //colision 
         if(tailleTrace>tailleInitTrace){
             tailleTrace-=sautTrace;
         }
@@ -87,8 +88,10 @@ function game(){
 
     // On choisit une autre position pour la pomme 
     PommeX = Math.trunc(Math.random()*canvas.width/largeur)*largeur;
+
     PommeY = Math.trunc(Math.random()*canvas.height/hauteur)*hauteur;
     } 
+    
 
     ctx.beginPath(); //Commencer un nouveau chemin pour séparer la pomme du serpent, si il faut rajouter un autre élément par la suite il va falloir en utiliser une autre par exemple
     ctx.arc(PommeX+PommeRadius, PommeY+PommeRadius, PommeRadius, 0, Math.PI * 2); //Méthode (arc) qui utilise le rayon de PommeRadius
@@ -106,6 +109,49 @@ function game(){
     ctx.font = '16px Arial';
     ctx.fillStyle = '#fff';
     ctx.fillText ('Vies restante: ' + vie, canvas.width - 130, 20);
+
+    //Affichage d'une feuille sur la pomme grâce à un V en écrivant sur le canvas. 
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#2ecc71'; //Couleur de la branche de la pomme (vert)
+    ctx.fillText('V', PommeX+4, PommeY+4 ); // Affichage du V qui représente la branche
+    ctx.save(); 
+    ctx.scale(1, 1.5); //Changement des proportions du contexte sur l'axe X 
+   
+    //Création d'un chemin/dessin pour le reflet de la pomme
+    ctx.beginPath(); //On commence un nouveau chemin puisque qu'on dessine une nouvelle forme
+    ctx.arc(PommeX+PommeRadius + 3, (PommeY+PommeRadius)/1.5,PommeRadius/3, 0, Math.PI * 2); // On dessine notre ovale mais en changeant Y (puisque tout est divisé par 1.5)
+    ctx.fillStyle="#ed7365"; // On indique la couleur à appliquer à notre chemin (reflet) ici ce sera du blanc
+    ctx.fill(); // Application du code couleur à notre chemin
+    ctx.closePath(); //On ferme le chemin afin de compléter la forme
+    ctx.restore()  // On restaure le contexte d'origine. Sans ça le canvas entier "s'écroule"
+
+    if(x==PommeX && y==PommeY){
+        // Incrementation de randomColor
+         randomColor++;
+         randomColor%=3;
+    }
+    ctx.fillStyle="#f1c40f";
+    for(var i=0;i<trace.length;i++) {
+        
+    if(i==trace.length-1){
+    switch(randomColor){
+
+    case 0:
+    ctx.fillStyle="#d35400"; 
+    break;
+
+    case 1:
+    ctx.fillStyle="#9b59b6";
+    break;
+    
+    default:
+    ctx.fillStyle="#1abc9c"; 
+    } 
+    }
+    ctx.fillRect(trace[i].x,trace[i].y, largeur-3, hauteur-3);
+    }    
+
+
 
     if(x<0 || x>canvas.width || y<0 || y > canvas.height){
         //Perte de vie 
