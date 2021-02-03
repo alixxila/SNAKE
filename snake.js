@@ -51,14 +51,12 @@ function game(){
 
 
     //On augmente tailleTrace toutes les secondes ( soit 100 boucles )
-    if((tailleTrace <= tailleMaxTrace) && ((deplacementX != 0) || (deplacementY!=0))) {
-        if((compteBoucle++)%100 == 1){
+    if((tailleTrace <= tailleMaxTrace) && ((x != 0) || (y != 0))) {
             sautBoucle--;
             if(sautBoucle<0){
             tailleTrace+=sautTrace;
             }
         }
-    }
     //Insérer la valeur de x et y dans notre tableau
     trace.push({x:x,y:y});
 
@@ -181,10 +179,11 @@ function game(){
             ctx.font = '40px Arial';
             ctx.fillStyle = '#fff';
             ctx.fillText('GAME OVER SON OF A BITCH', canvas.width / 2 - 130, canvas.height / 2);
-            document.getElementById('game-over').play();
+            var game_over = document.createElement("game-over");
+            document.getElementById('game-over');
             clearTimeout(intervalID);
             } else {
-            document.getElementById('life').play();
+            document.getElementById('life');
         }
 
     }
